@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -29,12 +30,15 @@ public class MainActivity extends AppCompatActivity {
     int pieceDrawableId;
     boolean pieceOnGame;
 
+    Semaphore semaphore;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.semaphore = new Semaphore(1);
         GridLayout grid = findViewById(R.id.gridLayout);
         this.rowCount = grid.getRowCount();
         this.columnCount = grid.getColumnCount();
@@ -47,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         this.pieceNumber = 0;
         this.pieceOnGame = false;
         this.initGridLayout();
-
 
         this.initGridMarginUI();
         //this.initGridMargin();
@@ -63,14 +66,20 @@ public class MainActivity extends AppCompatActivity {
 
                 if(pieceOnGame){
 
-                    Log.i("Ches", "Pieza on game");
                     if(ValidateDownMovement()){
 
+                        try {
+                            semaphore.acquire();
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         LowerPieceUI();
-                        Log.i("Ches", "Pieza bajada");
+                        semaphore.release();
+
                     }
                     else{
-                        Log.i("Ches", "No se pudo bajar");
+
                         pieceOnGame = false;
                     }
 
@@ -100,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
         Random ran = new Random();
         int pieceToGenerate = ran.nextInt(7) + 1;
 
-        Log.i("random",String.valueOf(pieceToGenerate));
-
         //This works
         this.pieceNumber = pieceToGenerate;
 
@@ -114,8 +121,8 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(pieceNumber == 2){
 
-            this.PlacePieceUi(14,24,34,35,R.drawable.bluecelltest);
-            this.PlacePiece(14,24,34,35,pieceToGenerate);
+            this.PlacePieceUi(14,24,34,44,R.drawable.bluecelltest);
+            this.PlacePiece(14,24,34,44,pieceToGenerate);
 
         }
         else if(pieceNumber == 3){
@@ -138,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(pieceNumber == 6){
 
-            this.PlacePieceUi(14,24,34,33,R.drawable.pinkcelltest);
-            this.PlacePiece(14,24,34,33,pieceToGenerate);
+            this.PlacePieceUi(14,24,33,34,R.drawable.pinkcelltest);
+            this.PlacePiece(14,24,33,34,pieceToGenerate);
 
         }
         else if(pieceNumber == 7){
@@ -184,38 +191,53 @@ public class MainActivity extends AppCompatActivity {
         imageView2.setImageResource(android.R.color.transparent);
         imageView3.setImageResource(android.R.color.transparent);
         imageView4.setImageResource(android.R.color.transparent);
+
+        this.gameMatrix[this.square1Pos] = 0;
+        this.gameMatrix[this.square2Pos] = 0;
+        this.gameMatrix[this.square3Pos] = 0;
+        this.gameMatrix[this.square4Pos] = 0;
     }
 
 
     public void MoveLeft(){
 
-        this.square1Pos -= 1;
-        this.square2Pos -= 1;
-        this.square4Pos -= 1;
-        this.square3Pos -= 1;
+
+        this.square1Pos --;
+        this.square2Pos --;
+        this.square4Pos --;
+        this.square3Pos --;
 
     }
+
     public void MoveLeftUI(){
 
-        GridLayout grid = findViewById(R.id.gridLayout);
-        ImageView imageView1, imageView2, imageView3,imageView4;
         this.ClearActualPieces();
-
         MoveLeft();
-
         this.UpdateUi();
 
 
+    }
 
+    public void MoveRight(){
 
+        this.square1Pos ++;
+        this.square2Pos ++;
+        this.square3Pos ++;
+        this.square4Pos ++;
 
     }
+    public void MoveRightUI() {
+
+        this.ClearActualPieces();
+        MoveRight();
+        this.UpdateUi();
+    }
+
     public boolean ValidateLeftMovement(){
 
         GridLayout grid = findViewById(R.id.gridLayout);
 
-        // 1 3 4 are the same for going left
-        if(this.pieceNumber == 1 || this.pieceNumber == 3 || this.pieceNumber == 4){
+        if(this.pieceNumber == 1 ){
 
             int nextPos1,nextPos3;
             nextPos1 = this.gameMatrix[this.square1Pos -1];
@@ -225,8 +247,35 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         }
+        else if(this.pieceNumber == 3){
+
+            int nextPos1,nextPos3;
+            nextPos3 = this.gameMatrix[this.square3Pos - 1];
+            nextPos1 = this.gameMatrix[this.square1Pos - 1];
+
+
+            if(nextPos3 == 0 && nextPos1 == 0){
+                return true;
+            }
+            return false;
+        }
+        else if(this.pieceNumber == 4){
+
+            int nextPos1,nextPos3;
+            nextPos1 = this.gameMatrix[this.square1Pos - 1];
+
+            nextPos3 = this.gameMatrix[this.square3Pos - 1];
+
+            if(nextPos1 == 0 && nextPos3 == 0){
+                return true;
+            }
+            return false;
+
+
+        }
         else if(this.pieceNumber == 2){
 
+            int cero = 2;
             int nextPos1,nextPos2,nextPos3,nextPos4;
             nextPos1 = this.gameMatrix[this.square1Pos-1];
             nextPos2 = this.gameMatrix[this.square2Pos-1];
@@ -273,6 +322,62 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean ValidateRightMovement(){
 
+
+        if(this.pieceNumber == 1){
+
+            int nextPos2, nextPos4;
+            nextPos2 = this.gameMatrix[this.square2Pos + 1];
+            nextPos4 = this.gameMatrix[this.square4Pos + 1];
+
+            if(nextPos2 == 0 && nextPos4 == 0){
+                return true;
+            }
+            return false;
+        }
+        else if(this.pieceNumber == 2) {
+
+            int nextPos1, nextPos2,nextPos3,nextPos4;
+            nextPos1 = this.gameMatrix[this.square1Pos + 1];
+            nextPos2 = this.gameMatrix[this.square2Pos + 1];
+            nextPos3 = this.gameMatrix[this.square3Pos + 1];
+            nextPos4 = this.gameMatrix[this.square4Pos + 1];
+            if(nextPos1 == 0 && nextPos2 == 0 && nextPos3 == 0 && nextPos4 == 0) {
+                return true;
+            }
+            return false;
+        }
+        else if(this.pieceNumber == 3 || this.pieceNumber == 4){
+
+            int nextPos2,nextPos4;
+            nextPos2 = this.gameMatrix[this.square2Pos + 1];
+            nextPos4 = this.gameMatrix[this.square4Pos + 1];
+            if(nextPos2 == 0 && nextPos4 == 0){
+                return true;
+            }
+            return false;
+        }
+        else if(this.pieceNumber == 5 || this.pieceNumber == 6){
+
+            int nextPos1, nextPos2,nextPos4;
+            nextPos1 = this.gameMatrix[this.square1Pos + 1];
+            nextPos2 = this.gameMatrix[this.square2Pos + 1];
+            nextPos4 = this.gameMatrix[this.square4Pos + 1];
+            if(nextPos1 == 0 && nextPos2 == 0 && nextPos4 == 0){
+                return true;
+            }
+            return false;
+        }
+        else if(this.pieceNumber == 7){
+
+            int nextPos3,nextPos4;
+            nextPos3 = this.gameMatrix[this.square3Pos + 1];
+            nextPos4 = this.gameMatrix[this.square4Pos + 1];
+            if(nextPos3 == 0 && nextPos4 == 0){
+                return true;
+            }
+            return false;
+        }
+
         return false;
     }
     // Checks if the actual piece can move down
@@ -280,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         GridLayout grid = findViewById(R.id.gridLayout);
-
+        int columnCount = grid.getColumnCount();
         if(this.pieceNumber == 1){
 
             int nextPos3, nextPos4;
@@ -288,7 +393,6 @@ public class MainActivity extends AppCompatActivity {
             nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
 
             if(nextPos3 == 0 && nextPos4 == 0){
-
                 return true;
             }
             return false;
@@ -305,11 +409,12 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(this.pieceNumber == 3){
 
-            int nextPos3, nextPos4;
+            int nextPos3, nextPos4,nextPos2;
             nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
             nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+            nextPos2 = this.gameMatrix[this.square2Pos + columnCount];
 
-            if(nextPos3 == 0 && nextPos4 == 0){
+            if(nextPos3 == 0 && nextPos4 == 0 && nextPos2 == 0){
                 return true;
             }
             return false;
@@ -317,16 +422,17 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(this.pieceNumber == 4){
 
-            int nextPos3, nextPos4;
+            int nextPos3, nextPos4, nextPos1;
             nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
             nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
-            if(nextPos3 == 0 && nextPos4 == 0){
+            nextPos1 = this.gameMatrix[this.square1Pos + columnCount];
+            if(nextPos3 == 0 && nextPos4 == 0 && nextPos1 == 0){
                 return true;
             }
             return false;
         }
 
-        else if(this.pieceNumber == 5){
+        else if(this.pieceNumber == 5 || this.pieceNumber == 6){
 
             int nextPos3,nextPos4;
             nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
@@ -336,28 +442,20 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         }
-        else if(this.pieceNumber == 6){
 
-            int nextPos3,nextPos4;
-            nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
-            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
-            if(nextPos3 == 0 && nextPos4 == 0){
-                return true;
-            }
-            return false;
-
-        }
         else if(this.pieceNumber == 7){ // for now , t like piece
 
 
-            int nextPos4;
-            columnCount = grid.getColumnCount();
-            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+            int nextPos1,nextPos3,nextPos4;
 
-            if (nextPos4 == 0){
+            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+            nextPos1 = this.gameMatrix[this.square1Pos + columnCount];
+            nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
+            if(nextPos4 == 0 && nextPos1 == 0 && nextPos3 ==0){
                 return true;
             }
             return false;
+
 
         }
         return false;
@@ -365,6 +463,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void UpdateUi(){
+
 
         GridLayout grid = findViewById(R.id.gridLayout);
         ImageView imageView1,imageView2,imageView3,imageView4;
@@ -378,6 +477,7 @@ public class MainActivity extends AppCompatActivity {
         imageView2.setImageResource(this.pieceDrawableId);
         imageView3.setImageResource(this.pieceDrawableId);
         imageView4.setImageResource(this.pieceDrawableId);
+
     }
     public void LowerPiece(){
 
@@ -543,26 +643,40 @@ public class MainActivity extends AppCompatActivity {
 
     // Buttons
 
-    public void OnClickButtonDown(View view){
+    public void OnClickButtonDown(View view) throws InterruptedException {
 
 
         if(this.ValidateDownMovement()){
+
+            this.semaphore.acquire();
             this.LowerPieceUI();
+            this.semaphore.release();
 
         }
 
     }
 
-    public void OnClickButtonLeft(View view){
+    public void OnClickButtonLeft(View view) throws InterruptedException {
 
 
         if(this.ValidateLeftMovement()){
 
+            this.semaphore.acquire();
             this.MoveLeftUI();
+            this.semaphore.release();
         }
 
     }
-    public void OnClickButtonRight(View view){
+    public void OnClickButtonRight(View view) throws InterruptedException {
+
+        if(this.ValidateRightMovement()){
+
+            this.semaphore.acquire();
+            this.MoveRightUI();
+            this.semaphore.release();
+            }
+        }
+
 
     }
-}
+
