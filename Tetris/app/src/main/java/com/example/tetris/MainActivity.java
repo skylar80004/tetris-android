@@ -25,10 +25,11 @@ public class MainActivity extends AppCompatActivity {
     int rowCount;
     int columnCount;
 
-    int gameMatrix [];
+    int gameMatrix[];
     int pieceNumber;
     int pieceDrawableId;
     boolean pieceOnGame;
+    int pieceRotationNumber;
 
     Semaphore semaphore;
 
@@ -50,11 +51,11 @@ public class MainActivity extends AppCompatActivity {
         this.square4Pos = 0;
         this.pieceNumber = 0;
         this.pieceOnGame = false;
-        this.initGridLayout();
+        this.pieceRotationNumber = 1;
 
+        this.initGridLayout();
         this.initGridMarginUI();
-        //this.initGridMargin();
-        Log.i("matrix", this.gameMatrixToString());
+       // Log.i("matrix", this.gameMatrixToString());
 
         // Runnable
         final Handler handler = new Handler();
@@ -64,45 +65,44 @@ public class MainActivity extends AppCompatActivity {
 
                 //Log.i("ches", "ches");
 
-                if(pieceOnGame){
+                if (pieceOnGame) {
 
-                    if(ValidateDownMovement()){
+                    try {
+                        semaphore.acquire();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
-                        try {
-                            semaphore.acquire();
+                    if (ValidateDownMovement()) {
 
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+
                         LowerPieceUI();
                         semaphore.release();
 
-                    }
-                    else{
+                    } else {
 
                         pieceOnGame = false;
+                        semaphore.release();
                     }
 
-                }
-                else{
+                } else {
 
                     // Spawn piece
                     SpawnPiece();
                     pieceOnGame = true;
                 }
 
-                handler.postDelayed(this,1000);
+                handler.postDelayed(this, 1000);
             }
         };
-        handler.postDelayed(r,1000);
+        handler.postDelayed(r, 1000);
 
         // End Runnable
 
     }
 
 
-
-    public void SpawnPiece(){
+    public void SpawnPiece() {
 
         // Gen randon number
 
@@ -111,61 +111,60 @@ public class MainActivity extends AppCompatActivity {
 
         //This works
         this.pieceNumber = pieceToGenerate;
+        this.pieceRotationNumber = 1;
 
 
-        if(pieceNumber == 1){
+        this.pieceNumber = 7; // TEST, THIS MUST BE ERASED!!!!!!!!!
+        pieceToGenerate = 7; // MUST BE ERASED
 
-            this.PlacePieceUi(14,15,24,25,R.drawable.yellowcelltest);
-            this.PlacePiece(14,15,24,25,pieceToGenerate);
 
-        }
-        else if(pieceNumber == 2){
+        if (pieceNumber == 1) {
 
-            this.PlacePieceUi(14,24,34,44,R.drawable.bluecelltest);
-            this.PlacePiece(14,24,34,44,pieceToGenerate);
+            this.PlacePieceUi(14, 15, 24, 25, R.drawable.yellowcelltest);
+            this.PlacePiece(14, 15, 24, 25, pieceToGenerate);
 
-        }
-        else if(pieceNumber == 3){
+        } else if (pieceNumber == 2) {
 
-            this.PlacePieceUi(14,15,23,24,R.drawable.redcelltest);
-            this.PlacePiece(14,15,23,24,pieceToGenerate);
+            this.PlacePieceUi(14, 24, 34, 44, R.drawable.bluecelltest);
+            this.PlacePiece(14, 24, 34, 44, pieceToGenerate);
 
-        }
-        else if(pieceNumber == 4){
+        } else if (pieceNumber == 3) {
 
-            this.PlacePieceUi(13,14,24,25,R.drawable.greencelltest);
-            this.PlacePiece(13,14,24,25,pieceToGenerate);
+            this.PlacePieceUi(14, 15, 23, 24, R.drawable.redcelltest);
+            this.PlacePiece(14, 15, 23, 24, pieceToGenerate);
 
-        }
-        else if(pieceNumber == 5){
+        } else if (pieceNumber == 4) {
 
-            this.PlacePieceUi(14,24,34,35,R.drawable.orangecelltest);
-            this.PlacePiece(14,24,34,35,pieceToGenerate);
+            this.PlacePieceUi(13, 14, 24, 25, R.drawable.greencelltest);
+            this.PlacePiece(13, 14, 24, 25, pieceToGenerate);
 
-        }
-        else if(pieceNumber == 6){
+        } else if (pieceNumber == 5) {
 
-            this.PlacePieceUi(14,24,33,34,R.drawable.pinkcelltest);
-            this.PlacePiece(14,24,33,34,pieceToGenerate);
+            this.PlacePieceUi(14, 24, 34, 35, R.drawable.orangecelltest);
+            this.PlacePiece(14, 24, 34, 35, pieceToGenerate);
 
-        }
-        else if(pieceNumber == 7){
+        } else if (pieceNumber == 6) {
 
-            this.PlacePieceUi(13,14,15,24,R.drawable.purplecelltest);
-            this.PlacePiece(13,14,15,24,pieceToGenerate);
+            this.PlacePieceUi(14, 24, 33, 34, R.drawable.pinkcelltest);
+            this.PlacePiece(14, 24, 33, 34, pieceToGenerate);
+
+        } else if (pieceNumber == 7) {
+
+            this.PlacePieceUi(13, 14, 15, 24, R.drawable.purplecelltest);
+            this.PlacePiece(13, 14, 15, 24, pieceToGenerate);
 
         }
 
 
     }
 
-    public String gameMatrixToString(){
+    public String gameMatrixToString() {
 
         GridLayout grid = findViewById(R.id.gridLayout);
         int count = grid.getColumnCount() * grid.getRowCount();
         String result = "";
-        int number = 0 ;
-        for(int i = 0 ; i < count ; i++){
+        int number = 0;
+        for (int i = 0; i < count; i++) {
 
             number = this.gameMatrix[i];
             result += String.valueOf(number) + " -> ";
@@ -176,16 +175,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void ClearActualPieces() {
 
-    public void ClearActualPieces(){
-
-        GridLayout grid  = findViewById(R.id.gridLayout);
+        GridLayout grid = findViewById(R.id.gridLayout);
         // Clear actual pieces
-        ImageView imageView1,imageView2,imageView3,imageView4;
-        imageView1 = (ImageView)grid.getChildAt(this.square1Pos);
-        imageView2 = (ImageView)grid.getChildAt(this.square2Pos);
-        imageView3 = (ImageView)grid.getChildAt(this.square3Pos);
-        imageView4 = (ImageView)grid.getChildAt(this.square4Pos);
+        ImageView imageView1, imageView2, imageView3, imageView4;
+        imageView1 = (ImageView) grid.getChildAt(this.square1Pos);
+        imageView2 = (ImageView) grid.getChildAt(this.square2Pos);
+        imageView3 = (ImageView) grid.getChildAt(this.square3Pos);
+        imageView4 = (ImageView) grid.getChildAt(this.square4Pos);
 
         imageView1.setImageResource(android.R.color.transparent);
         imageView2.setImageResource(android.R.color.transparent);
@@ -199,17 +197,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void MoveLeft(){
+    public void MoveLeft() {
 
 
-        this.square1Pos --;
-        this.square2Pos --;
-        this.square4Pos --;
-        this.square3Pos --;
+        this.square1Pos--;
+        this.square2Pos--;
+        this.square4Pos--;
+        this.square3Pos--;
 
     }
 
-    public void MoveLeftUI(){
+    public void MoveLeftUI() {
 
         this.ClearActualPieces();
         MoveLeft();
@@ -218,14 +216,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void MoveRight(){
+    public void MoveRight() {
 
-        this.square1Pos ++;
-        this.square2Pos ++;
-        this.square3Pos ++;
-        this.square4Pos ++;
+        this.square1Pos++;
+        this.square2Pos++;
+        this.square3Pos++;
+        this.square4Pos++;
 
     }
+
     public void MoveRightUI() {
 
         this.ClearActualPieces();
@@ -233,240 +232,664 @@ public class MainActivity extends AppCompatActivity {
         this.UpdateUi();
     }
 
-    public boolean ValidateLeftMovement(){
+
+
+    public void Rotate(){
+
+        if(this.pieceRotationNumber == 1){
+
+            if(this.pieceNumber == 2){
+
+                this.square1Pos = this.square1Pos + columnCount + 1;
+                this.square3Pos = this.square3Pos - columnCount - 1;
+                this.square4Pos = this.square4Pos - (columnCount *2 ) - 2;
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.square2Pos = this.square4Pos;
+                this.square3Pos = this.square3Pos - (columnCount * 2);
+                this.square4Pos = this.square4Pos - columnCount - 1;
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.square3Pos = this.square1Pos;
+                this.square1Pos = this.square1Pos - columnCount + 1;
+                this.square4Pos = this.square4Pos - 2;
+
+            }
+            else if (this.pieceNumber == 5){
+
+                this.square1Pos = this.square2Pos + 1;
+                this.square3Pos = this.square2Pos - 1;
+                this.square4Pos = this.square4Pos - 2;
+
+            }
+            else if(this.pieceNumber == 6){
+
+                this.square1Pos = this.square2Pos + 1;
+                this.square4Pos = this.square2Pos - 1;
+                this.square3Pos = this.square3Pos - (2* columnCount);
+            }
+
+            else if(this.pieceNumber == 7){
+
+
+                this.square1Pos = this.square2Pos - columnCount;
+                this.square3Pos = this.square2Pos  + columnCount;
+                this.square4Pos = this.square2Pos - 1;
+
+            }
+        }
+
+        // after all ifs
+        this.pieceRotationNumber++;
+        if(this.pieceRotationNumber == 5){
+            this.pieceRotationNumber = 1;
+        }
+
+    }
+    public void RotateUI(){
+
+        this.ClearActualPieces();
+        this.Rotate();
+        this.UpdateUi();
+
+    }
+
+    public boolean ValidateRotationMovement(){
+
+        if(this.pieceRotationNumber == 1){
+
+            if(this.pieceNumber == 2) {
+
+                int nextPos1, nextPos3, nextPos4;
+                nextPos1 = this.gameMatrix[this.square1Pos + columnCount + 1];
+                nextPos3 = this.gameMatrix[this.square3Pos - columnCount - 1];
+                nextPos4 = this.gameMatrix[this.square4Pos - (columnCount *2 ) - 2];
+
+                if(nextPos1 == 0 && nextPos3 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 3) {
+
+                int nextPos3,nextPos4;
+                nextPos3 = this.gameMatrix[this.square3Pos - (columnCount *2)];
+                nextPos4 = this.gameMatrix[this.square4Pos - columnCount - 1];
+                if(nextPos3 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
+
+            }
+            else if(this.pieceNumber == 4){
+
+                int nextPos1, nextPos3, nextPos4;
+
+                nextPos1 = this.gameMatrix[this.square1Pos - columnCount + 1];
+                nextPos4 = this.gameMatrix[this.square4Pos - 2];
+
+                if(nextPos1 == 0  && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 5){
+
+                int nextPos1, nextPos3,nextPos4;
+                nextPos1 = this.gameMatrix[this.square2Pos + 1 ];
+                nextPos3 = this.gameMatrix[this.square2Pos - 1];
+                nextPos4 = this.gameMatrix[this.square4Pos - 2];
+
+                if(nextPos1 == 0 && nextPos3 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+            }
+            else if(this.pieceNumber == 6){
+
+                int nextPos1, nextPos3, nextPos4;
+
+                nextPos1 = this.gameMatrix[this.square2Pos + 1];
+                nextPos4 = this.gameMatrix[this.square2Pos - 1];
+                nextPos3 = this.gameMatrix[this.square3Pos - (2* columnCount)];
+
+                if(nextPos1 == 0 && nextPos3 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 7){
+
+                int nextPos1;
+                nextPos1 = this.gameMatrix[this.square2Pos - columnCount];
+
+                if(nextPos1 == 0) {
+                    return true;
+                }
+                return false;
+
+            }
+
+
+
+
+            //Rotar
+
+
+        }
+        else if(this.pieceRotationNumber == 2){
+
+        }
+        else if(this.pieceRotationNumber == 3){
+
+        }
+        else if(this.pieceRotationNumber == 4){
+
+        }
+
+
+
+
+        return false;
+    }
+
+    public boolean ValidateLeftMovement() {
 
         GridLayout grid = findViewById(R.id.gridLayout);
 
-        if(this.pieceNumber == 1 ){
 
-            int nextPos1,nextPos3;
-            nextPos1 = this.gameMatrix[this.square1Pos -1];
-            nextPos3 = this.gameMatrix[this.square3Pos -1];
-            if(nextPos1 == 0 && nextPos3 == 0){
-                return true;
+        if(pieceRotationNumber == 1){
+
+            if (this.pieceNumber == 1) {
+
+                int nextPos1, nextPos3;
+                nextPos1 = this.gameMatrix[this.square1Pos - 1];
+                nextPos3 = this.gameMatrix[this.square3Pos - 1];
+                if (nextPos1 == 0 && nextPos3 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 3) {
+
+                int nextPos1, nextPos3;
+                nextPos3 = this.gameMatrix[this.square3Pos - 1];
+                nextPos1 = this.gameMatrix[this.square1Pos - 1];
+
+
+                if (nextPos3 == 0 && nextPos1 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 4) {
+
+                int nextPos1, nextPos3;
+                nextPos1 = this.gameMatrix[this.square1Pos - 1];
+
+                nextPos3 = this.gameMatrix[this.square3Pos - 1];
+
+                if (nextPos1 == 0 && nextPos3 == 0) {
+                    return true;
+                }
+                return false;
+
+
+            } else if (this.pieceNumber == 2) {
+
+                int cero = 2;
+                int nextPos1, nextPos2, nextPos3, nextPos4;
+                nextPos1 = this.gameMatrix[this.square1Pos - 1];
+                nextPos2 = this.gameMatrix[this.square2Pos - 1];
+                nextPos3 = this.gameMatrix[this.square3Pos - 1];
+                nextPos4 = this.gameMatrix[this.square4Pos - 1];
+
+                if (nextPos1 == 0 && nextPos2 == 0 &&
+                        nextPos3 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+
+            } else if (this.pieceNumber == 5 || this.pieceNumber == 6) {
+
+                int nextPos1, nextPos2, nextPos3;
+                nextPos1 = this.gameMatrix[this.square1Pos - 1];
+                nextPos2 = this.gameMatrix[this.square2Pos - 1];
+                nextPos3 = this.gameMatrix[this.square3Pos - 1];
+
+                if (nextPos1 == 0 && nextPos2 == 0 && nextPos3 == 0) {
+                    return true;
+                }
+                return false;
+
+
+            } else if (this.pieceNumber == 7) {
+
+                int nextPos1, nextPos4;
+                nextPos1 = this.gameMatrix[this.square1Pos - 1];
+                nextPos4 = this.gameMatrix[this.square4Pos - 1];
+                if (nextPos1 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+
             }
-            return false;
-        }
-        else if(this.pieceNumber == 3){
-
-            int nextPos1,nextPos3;
-            nextPos3 = this.gameMatrix[this.square3Pos - 1];
-            nextPos1 = this.gameMatrix[this.square1Pos - 1];
-
-
-            if(nextPos3 == 0 && nextPos1 == 0){
-                return true;
-            }
-            return false;
-        }
-        else if(this.pieceNumber == 4){
-
-            int nextPos1,nextPos3;
-            nextPos1 = this.gameMatrix[this.square1Pos - 1];
-
-            nextPos3 = this.gameMatrix[this.square3Pos - 1];
-
-            if(nextPos1 == 0 && nextPos3 == 0){
-                return true;
-            }
-            return false;
-
-
-        }
-        else if(this.pieceNumber == 2){
-
-            int cero = 2;
-            int nextPos1,nextPos2,nextPos3,nextPos4;
-            nextPos1 = this.gameMatrix[this.square1Pos-1];
-            nextPos2 = this.gameMatrix[this.square2Pos-1];
-            nextPos3 = this.gameMatrix[this.square3Pos-1];
-            nextPos4 = this.gameMatrix[this.square4Pos-1];
-
-            if(nextPos1 == 0 && nextPos2 == 0 &&
-                    nextPos3 == 0 && nextPos4 == 0){
-                return true;
-            }
-            return false;
-
-        }
-
-
-        else if(this.pieceNumber == 5 || this.pieceNumber == 6){
-
-            int nextPos1,nextPos2,nextPos3;
-            nextPos1 = this.gameMatrix[this.square1Pos -1];
-            nextPos2 = this.gameMatrix[this.square2Pos -1];
-            nextPos3  = this.gameMatrix[this.square3Pos -1];
-
-            if(nextPos1 == 0 && nextPos2 == 0 && nextPos3 == 0){
-                return true;
-            }
-            return false;
-
-
-        }
-        else if(this.pieceNumber == 7){
-
-            int nextPos1,nextPos4;
-            nextPos1 = this.gameMatrix[this.square1Pos -1];
-            nextPos4 = this.gameMatrix[this.square4Pos -1];
-            if(nextPos1 == 0 && nextPos4 == 0){
-                return true;
-            }
-            return false;
 
         }
+        else if(this.pieceRotationNumber == 2){
+
+            if(this.pieceNumber == 1){
+
+                int nextPos1, nextPos3;
+                nextPos1 = this.gameMatrix[this.square1Pos - 1];
+                nextPos3 = this.gameMatrix[this.square3Pos - 1];
+                if (nextPos1 == 0 && nextPos3 == 0) {
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 2){
+
+
+                int nextPos4 = this.gameMatrix[this.square4Pos - 1];
+                if(nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 3){
+
+                int nextPos2,nextPos3,nextPos4;
+                nextPos2 = this.gameMatrix[this.square2Pos - 1];
+                nextPos3 = this.gameMatrix[this.square3Pos - 1];
+                nextPos4 = this.gameMatrix[this.square4Pos - 1];
+
+                if(nextPos2 == 0 && nextPos3 == 0 && nextPos4 == 0 ){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 4){
+
+                int nextPos1,nextPos3,nextPos4;
+                nextPos1 = this.gameMatrix[square1Pos - 1];
+                nextPos3 = this.gameMatrix[square3Pos - 1];
+                nextPos4 = this.gameMatrix[square4Pos - 1];
+
+                if(nextPos1 == 0 && nextPos3 ==0 && nextPos4 == 0 ){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 5 || this.pieceNumber == 6){
+
+                int nextPos3, nextPos4;
+                nextPos3 =  this.gameMatrix[square3Pos - 1];
+                nextPos4 = this.gameMatrix[square4Pos - 1];
+                if(nextPos3 == 0  && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 7){
+
+                int nextPos1,nextPos3,nextPos4;
+
+                nextPos1 = this.gameMatrix[square1Pos - 1];
+                nextPos3 = this.gameMatrix[square3Pos - 1];
+                nextPos4 = this.gameMatrix[square4Pos - 1];
+                if(nextPos1 == 0 && nextPos3 == 0 && nextPos4 == 0 ){
+                    return true;
+                }
+                return false;
+            }
+
+
+        }
+        else if(this.pieceRotationNumber == 3){
+
+        }
+        else if(this.pieceRotationNumber == 4){
+
+        }
+
+
 
         return false;
     }
 
-    public boolean ValidateRightMovement(){
+    public boolean ValidateRightMovement() {
 
 
-        if(this.pieceNumber == 1){
 
-            int nextPos2, nextPos4;
-            nextPos2 = this.gameMatrix[this.square2Pos + 1];
-            nextPos4 = this.gameMatrix[this.square4Pos + 1];
+        if(this.pieceRotationNumber == 1){
 
-            if(nextPos2 == 0 && nextPos4 == 0){
-                return true;
+
+            if (this.pieceNumber == 1) {
+
+                int nextPos2, nextPos4;
+                nextPos2 = this.gameMatrix[this.square2Pos + 1];
+                nextPos4 = this.gameMatrix[this.square4Pos + 1];
+
+                if (nextPos2 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 2) {
+
+                int nextPos1, nextPos2, nextPos3, nextPos4;
+                nextPos1 = this.gameMatrix[this.square1Pos + 1];
+                nextPos2 = this.gameMatrix[this.square2Pos + 1];
+                nextPos3 = this.gameMatrix[this.square3Pos + 1];
+                nextPos4 = this.gameMatrix[this.square4Pos + 1];
+                if (nextPos1 == 0 && nextPos2 == 0 && nextPos3 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 3 || this.pieceNumber == 4) {
+
+                int nextPos2, nextPos4;
+                nextPos2 = this.gameMatrix[this.square2Pos + 1];
+                nextPos4 = this.gameMatrix[this.square4Pos + 1];
+                if (nextPos2 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 5 || this.pieceNumber == 6) {
+
+                int nextPos1, nextPos2, nextPos4;
+                nextPos1 = this.gameMatrix[this.square1Pos + 1];
+                nextPos2 = this.gameMatrix[this.square2Pos + 1];
+                nextPos4 = this.gameMatrix[this.square4Pos + 1];
+                if (nextPos1 == 0 && nextPos2 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 7) {
+
+                int nextPos3, nextPos4;
+                nextPos3 = this.gameMatrix[this.square3Pos + 1];
+                nextPos4 = this.gameMatrix[this.square4Pos + 1];
+                if (nextPos3 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
             }
-            return false;
-        }
-        else if(this.pieceNumber == 2) {
 
-            int nextPos1, nextPos2,nextPos3,nextPos4;
-            nextPos1 = this.gameMatrix[this.square1Pos + 1];
-            nextPos2 = this.gameMatrix[this.square2Pos + 1];
-            nextPos3 = this.gameMatrix[this.square3Pos + 1];
-            nextPos4 = this.gameMatrix[this.square4Pos + 1];
-            if(nextPos1 == 0 && nextPos2 == 0 && nextPos3 == 0 && nextPos4 == 0) {
-                return true;
-            }
-            return false;
-        }
-        else if(this.pieceNumber == 3 || this.pieceNumber == 4){
 
-            int nextPos2,nextPos4;
-            nextPos2 = this.gameMatrix[this.square2Pos + 1];
-            nextPos4 = this.gameMatrix[this.square4Pos + 1];
-            if(nextPos2 == 0 && nextPos4 == 0){
-                return true;
-            }
-            return false;
         }
-        else if(this.pieceNumber == 5 || this.pieceNumber == 6){
+        else if(this.pieceRotationNumber == 2){
 
-            int nextPos1, nextPos2,nextPos4;
-            nextPos1 = this.gameMatrix[this.square1Pos + 1];
-            nextPos2 = this.gameMatrix[this.square2Pos + 1];
-            nextPos4 = this.gameMatrix[this.square4Pos + 1];
-            if(nextPos1 == 0 && nextPos2 == 0 && nextPos4 == 0){
-                return true;
-            }
-            return false;
-        }
-        else if(this.pieceNumber == 7){
+            if(this.pieceNumber == 1){
 
-            int nextPos3,nextPos4;
-            nextPos3 = this.gameMatrix[this.square3Pos + 1];
-            nextPos4 = this.gameMatrix[this.square4Pos + 1];
-            if(nextPos3 == 0 && nextPos4 == 0){
-                return true;
+                int nextPos2, nextPos4;
+                nextPos2 = this.gameMatrix[this.square2Pos + 1];
+                nextPos4 = this.gameMatrix[this.square4Pos + 1];
+
+                if (nextPos2 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+
             }
-            return false;
+            else if(this.pieceNumber == 2){
+
+                int nextPos1 = this.gameMatrix[this.square1Pos + 1];
+                if(nextPos1 == 0){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 3){
+
+                int nextPos1,nextPos2,nextPos3;
+                nextPos1 = this.gameMatrix[this.square1Pos +1];
+                nextPos2 = this.gameMatrix[this.square2Pos +1];
+                nextPos3 = this.gameMatrix[this.square3Pos +1];
+
+                if(nextPos1 == 0 && nextPos2 == 0 && nextPos3 == 0){
+                    return true;
+                }
+                return false;
+
+
+            }
+            else if(this.pieceNumber == 4){
+
+                int nextPos1,nextPos2,nextPos4;
+                nextPos1 = this.gameMatrix[this.square1Pos + 1];
+                nextPos2 = this.gameMatrix[this.square2Pos + 1];
+                nextPos4 = this.gameMatrix[this.square4Pos + 1];
+
+                if(nextPos1 ==0 && nextPos2 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+            }
+
+            else if(this.pieceNumber == 5){
+
+                int nextPos1,nextPos4;
+                nextPos4 = this.gameMatrix[this.square4Pos +1];
+                nextPos1 = this.gameMatrix[this.square1Pos + 1];
+
+                if(nextPos1 ==0 && nextPos4 ==0){
+                    return true;
+                }
+                return false;
+
+
+            }
+            else if(this.pieceNumber == 6){
+
+                int nextPos1, nextPos3;
+                nextPos1 = this.gameMatrix[this.square1Pos + 1];
+                nextPos3 = this.gameMatrix[this.square3Pos + 1];
+                if(nextPos1 == 0 && nextPos3 == 0){
+                    return true;
+                }
+                return false;
+
+            }
+            else if(this.pieceNumber == 7){
+
+                int nextPos1, nextPos2,nextPos3;
+                nextPos1 = this.gameMatrix[this.square1Pos + 1];
+                nextPos2 = this.gameMatrix[this.square2Pos + 1];
+                nextPos3 = this.gameMatrix[this.square3Pos + 1];
+
+                if(nextPos1 == 0 && nextPos2 == 0 && nextPos3 ==0){
+                    return true;
+                }
+                return false;
+
+
+
+            }
+
         }
+        else if(this.pieceRotationNumber == 3){
+
+        }
+        else if(this.pieceRotationNumber == 4){
+
+        }
+
 
         return false;
     }
+
     // Checks if the actual piece can move down
-    public boolean ValidateDownMovement(){
+    public boolean ValidateDownMovement() {
 
 
         GridLayout grid = findViewById(R.id.gridLayout);
         int columnCount = grid.getColumnCount();
-        if(this.pieceNumber == 1){
 
-            int nextPos3, nextPos4;
-            nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
-            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+        Log.i("ches", String.valueOf(this.pieceRotationNumber) + "  rotation");
+        if(this.pieceRotationNumber == 1){
 
-            if(nextPos3 == 0 && nextPos4 == 0){
-                return true;
+            if (this.pieceNumber == 1) {
+
+                int nextPos3, nextPos4;
+                nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+
+                if (nextPos3 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 2) {
+
+                int nextPos4;
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+                if (nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+
+            } else if (this.pieceNumber == 3) {
+
+                int nextPos3, nextPos4, nextPos2;
+                nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+                nextPos2 = this.gameMatrix[this.square2Pos + columnCount];
+
+                if (nextPos3 == 0 && nextPos4 == 0 && nextPos2 == 0) {
+                    return true;
+                }
+                return false;
+
+            } else if (this.pieceNumber == 4) {
+
+                int nextPos3, nextPos4, nextPos1;
+                nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+                nextPos1 = this.gameMatrix[this.square1Pos + columnCount];
+                if (nextPos3 == 0 && nextPos4 == 0 && nextPos1 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 5 || this.pieceNumber == 6) {
+
+                int nextPos3, nextPos4;
+                nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+                if (nextPos3 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+            } else if (this.pieceNumber == 7) { // for now , t like piece
+                int nextPos1, nextPos3, nextPos4;
+
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+                nextPos1 = this.gameMatrix[this.square1Pos + columnCount];
+                nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
+                if (nextPos4 == 0 && nextPos1 == 0 && nextPos3 == 0) {
+                    return true;
+                }
+                return false;
+
+
             }
             return false;
-        }
-        else if(this.pieceNumber == 2){
 
-            int nextPos4;
-            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
-            if(nextPos4 == 0){
-                return true;
+        }
+
+        else if(this.pieceRotationNumber == 2){
+
+            if(this.pieceNumber == 1 || this.pieceNumber == 7){
+
+                int nextPos3, nextPos4;
+                nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+
+                if (nextPos3 == 0 && nextPos4 == 0) {
+                    return true;
+                }
+                return false;
+
             }
-            return false;
+            else if(this.pieceNumber == 2){
 
-        }
-        else if(this.pieceNumber == 3){
+                int nextPos1,nextPos2,nextPos3,nextPos4;
 
-            int nextPos3, nextPos4,nextPos2;
-            nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
-            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
-            nextPos2 = this.gameMatrix[this.square2Pos + columnCount];
+                nextPos1 = this.gameMatrix[this.square1Pos + columnCount];
+                nextPos2 = this.gameMatrix[this.square2Pos + columnCount];
+                nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
 
-            if(nextPos3 == 0 && nextPos4 == 0 && nextPos2 == 0){
-                return true;
+                if(nextPos1 == 0 && nextPos2 == 0 && nextPos3 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
             }
-            return false;
+            else if(this.pieceNumber == 3){
 
-        }
-        else if(this.pieceNumber == 4){
+                int nextPos2 = this.gameMatrix[this.square2Pos + columnCount];
+                int nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
 
-            int nextPos3, nextPos4, nextPos1;
-            nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
-            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
-            nextPos1 = this.gameMatrix[this.square1Pos + columnCount];
-            if(nextPos3 == 0 && nextPos4 == 0 && nextPos1 == 0){
-                return true;
+                if(nextPos2 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
             }
-            return false;
-        }
+            else if(this.pieceNumber == 4){
 
-        else if(this.pieceNumber == 5 || this.pieceNumber == 6){
 
-            int nextPos3,nextPos4;
-            nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
-            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
-            if(nextPos3 == 0 && nextPos4 == 0){
-                return true;
+                int nextPos2 = this.gameMatrix[this.square2Pos + columnCount];
+                int nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
+                if(nextPos2 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
+
             }
-            return false;
-        }
+            else if(this.pieceNumber == 5 || this.pieceNumber == 6){
 
-        else if(this.pieceNumber == 7){ // for now , t like piece
+                int nextPos1, nextPos2,nextPos4;
+                nextPos1 = this.gameMatrix[this.square1Pos + columnCount];
+                nextPos2 = this.gameMatrix[this.square2Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
 
-
-            int nextPos1,nextPos3,nextPos4;
-
-            nextPos4 = this.gameMatrix[this.square4Pos + columnCount];
-            nextPos1 = this.gameMatrix[this.square1Pos + columnCount];
-            nextPos3 = this.gameMatrix[this.square3Pos + columnCount];
-            if(nextPos4 == 0 && nextPos1 == 0 && nextPos3 ==0){
-                return true;
+                if(nextPos1 == 0 && nextPos2 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
             }
-            return false;
 
 
         }
+        else if(this.pieceRotationNumber == 3){
+
+        }
+        else if(this.pieceRotationNumber == 4){
+
+        }
+
+
         return false;
-
     }
 
-    public void UpdateUi(){
+    public void UpdateUi() {
 
 
         GridLayout grid = findViewById(R.id.gridLayout);
-        ImageView imageView1,imageView2,imageView3,imageView4;
+        ImageView imageView1, imageView2, imageView3, imageView4;
         imageView1 = (ImageView) grid.getChildAt(this.square1Pos);
         imageView2 = (ImageView) grid.getChildAt(this.square2Pos);
         imageView3 = (ImageView) grid.getChildAt(this.square3Pos);
@@ -479,7 +902,8 @@ public class MainActivity extends AppCompatActivity {
         imageView4.setImageResource(this.pieceDrawableId);
 
     }
-    public void LowerPiece(){
+
+    public void LowerPiece() {
 
 
         this.gameMatrix[square1Pos] = 0;
@@ -499,10 +923,10 @@ public class MainActivity extends AppCompatActivity {
         this.gameMatrix[square4Pos] = 1;
     }
 
-    public void LowerPieceUI(){
+    public void LowerPieceUI() {
 
         GridLayout grid = findViewById(R.id.gridLayout);
-        ImageView imageView1,imageView2,imageView3,imageView4;
+        ImageView imageView1, imageView2, imageView3, imageView4;
         // Clear actual pieces
         this.ClearActualPieces();
         this.LowerPiece();
@@ -511,11 +935,10 @@ public class MainActivity extends AppCompatActivity {
         this.UpdateUi();
 
 
-
     }
 
 
-    public void PlacePiece(int square1Pos, int square2Pos, int square3Pos, int square4Pos,int pieceNumber){
+    public void PlacePiece(int square1Pos, int square2Pos, int square3Pos, int square4Pos, int pieceNumber) {
 
         this.square1Pos = square1Pos;
         this.square2Pos = square2Pos;
@@ -531,11 +954,12 @@ public class MainActivity extends AppCompatActivity {
         this.pieceOnGame = true;
 
     }
-    public void PlacePieceUi(int square1Pos, int square2Pos, int square3Pos, int square4Pos, int drawable){
+
+    public void PlacePieceUi(int square1Pos, int square2Pos, int square3Pos, int square4Pos, int drawable) {
 
         GridLayout grid = findViewById(R.id.gridLayout);
 
-        ImageView imageView1, imageView2, imageView3,imageView4;
+        ImageView imageView1, imageView2, imageView3, imageView4;
 
         imageView1 = (ImageView) grid.getChildAt(square1Pos);
         imageView2 = (ImageView) grid.getChildAt(square2Pos);
@@ -559,10 +983,10 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("COUNT", "Hijos: " + count);
 
-        for(int i = 0 ; i < count; i++){
+        for (int i = 0; i < count; i++) {
 
             imageView = (ImageView) grid.getChildAt(i);
-            Log.i("IV", i + imageView.toString() );
+            Log.i("IV", i + imageView.toString());
 
             //imageView.setImageDrawable(null);
             imageView.setBackground(null);
@@ -572,17 +996,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void initGridMargin(){
+    public void initGridMargin() {
 
         GridLayout grid = findViewById(R.id.gridLayout);
 
         ImageView imageView;
         int rowCount = grid.getRowCount();
         int columnCount = grid.getColumnCount();
-        int lastRowIndex = (rowCount*columnCount) - columnCount;
+        int lastRowIndex = (rowCount * columnCount) - columnCount;
 
         // margens de arriba y abajo
-        for(int i = 0; i < columnCount;i++){
+        for (int i = 0; i < columnCount; i++) {
 
             this.gameMatrix[i] = 1;
 
@@ -592,32 +1016,33 @@ public class MainActivity extends AppCompatActivity {
 
         //Margenes de los lados izq y der
         int count = (rowCount * columnCount) - columnCount;
-        for(int i = 0 ; i < rowCount * columnCount; i = i + columnCount){
+        for (int i = 0; i < rowCount * columnCount; i = i + columnCount) {
 
             this.gameMatrix[i] = 1;
-            this.gameMatrix[i + columnCount -1] = 1;
+            this.gameMatrix[i + columnCount - 1] = 1;
 
         }
 
     }
-    public void initGridMarginUI(){
+
+    public void initGridMarginUI() {
 
         GridLayout grid = findViewById(R.id.gridLayout);
 
         ImageView imageView;
         int rowCount = grid.getRowCount();
         int columnCount = grid.getColumnCount();
-        int lastRowIndex = (rowCount*columnCount) - columnCount;
+        int lastRowIndex = (rowCount * columnCount) - columnCount;
 
         // margens de arriba y abajo
-        for(int i = 0; i < columnCount;i++){
+        for (int i = 0; i < columnCount; i++) {
 
-            imageView = (ImageView)grid.getChildAt(i);
+            imageView = (ImageView) grid.getChildAt(i);
             imageView.setImageResource(R.drawable.margintest);
 
             this.gameMatrix[i] = 1;
 
-            imageView =(ImageView) grid.getChildAt(i + lastRowIndex);
+            imageView = (ImageView) grid.getChildAt(i + lastRowIndex);
             imageView.setImageResource(R.drawable.margintest);
 
             this.gameMatrix[i + lastRowIndex] = 1;
@@ -627,13 +1052,13 @@ public class MainActivity extends AppCompatActivity {
 
         //Margenes de los lados izq y der
         int count = (rowCount * columnCount) - columnCount;
-        for(int i = 0 ; i < rowCount * columnCount; i = i + columnCount){
+        for (int i = 0; i < rowCount * columnCount; i = i + columnCount) {
 
-            imageView = (ImageView)grid.getChildAt(i);
+            imageView = (ImageView) grid.getChildAt(i);
             imageView.setImageResource(R.drawable.margintest);
             this.gameMatrix[i] = 1;
 
-            imageView = (ImageView)grid.getChildAt( i + columnCount - 1);
+            imageView = (ImageView) grid.getChildAt(i + columnCount - 1);
             imageView.setImageResource(R.drawable.margintest);
             this.gameMatrix[i + columnCount - 1] = 1;
 
@@ -646,7 +1071,7 @@ public class MainActivity extends AppCompatActivity {
     public void OnClickButtonDown(View view) throws InterruptedException {
 
 
-        if(this.ValidateDownMovement()){
+        if (this.ValidateDownMovement()) {
 
             this.semaphore.acquire();
             this.LowerPieceUI();
@@ -659,7 +1084,7 @@ public class MainActivity extends AppCompatActivity {
     public void OnClickButtonLeft(View view) throws InterruptedException {
 
 
-        if(this.ValidateLeftMovement()){
+        if (this.ValidateLeftMovement()) {
 
             this.semaphore.acquire();
             this.MoveLeftUI();
@@ -667,16 +1092,26 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
     public void OnClickButtonRight(View view) throws InterruptedException {
 
-        if(this.ValidateRightMovement()){
+        if (this.ValidateRightMovement()) {
 
             this.semaphore.acquire();
             this.MoveRightUI();
             this.semaphore.release();
-            }
         }
-
-
     }
+
+
+    public void OnClickButtonRotate(View view) throws InterruptedException {
+
+        if(this.ValidateRotationMovement()){
+
+            this.semaphore.acquire();
+            this.RotateUI();
+            this.semaphore.release();
+        }
+    }
+}
 
