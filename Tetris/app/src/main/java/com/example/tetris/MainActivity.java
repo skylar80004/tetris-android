@@ -6,9 +6,11 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayout;
+import android.text.method.HideReturnsTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.util.Random;
 import java.util.concurrent.Semaphore;
@@ -62,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
         Runnable r = new Runnable() {
 
             public void run() {
-
                 //Log.i("ches", "ches");
 
                 if (pieceOnGame) {
@@ -81,8 +82,15 @@ public class MainActivity extends AppCompatActivity {
 
                     } else {
 
+
                         pieceOnGame = false;
+                        try {
+                            CheckCompleteRow();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         semaphore.release();
+
                     }
 
                 } else {
@@ -113,9 +121,8 @@ public class MainActivity extends AppCompatActivity {
         this.pieceNumber = pieceToGenerate;
         this.pieceRotationNumber = 1;
 
-
-        this.pieceNumber = 7; // TEST, THIS MUST BE ERASED!!!!!!!!!
-        pieceToGenerate = 7; // MUST BE ERASED
+        this.pieceNumber = 1; // TEST, THIS MUST BE ERASED!!!!!!!!!
+        pieceToGenerate = 1; // MUST BE ERASED
 
 
         if (pieceNumber == 1) {
@@ -189,6 +196,18 @@ public class MainActivity extends AppCompatActivity {
         imageView2.setImageResource(android.R.color.transparent);
         imageView3.setImageResource(android.R.color.transparent);
         imageView4.setImageResource(android.R.color.transparent);
+
+        imageView1.setBackground(null);
+        imageView2.setBackground(null);
+        imageView3.setBackground(null);
+        imageView4.setBackground(null);
+
+        imageView1.setImageDrawable(null);
+        imageView2.setImageDrawable(null);
+        imageView3.setImageDrawable(null);
+        imageView4.setImageDrawable(null);
+
+
 
         this.gameMatrix[this.square1Pos] = 0;
         this.gameMatrix[this.square2Pos] = 0;
@@ -281,6 +300,112 @@ public class MainActivity extends AppCompatActivity {
                 this.square4Pos = this.square2Pos - 1;
 
             }
+        }
+
+        // jose
+        else if(this.pieceRotationNumber == 2){
+
+
+            if(this.pieceNumber == 2){
+
+                this.square1Pos = this.square2Pos - columnCount;
+                this.square3Pos = this.square2Pos + columnCount;
+                this.square4Pos = this.square2Pos + (2 * columnCount);
+                this.pieceRotationNumber = 1;
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.square2Pos = this.square1Pos + 1;
+                this.square3Pos = this.square1Pos +columnCount - 1;
+                this.square4Pos = this.square1Pos + columnCount;
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.square3Pos = this.square2Pos + columnCount;
+                this.square4Pos = this.square2Pos + columnCount + 1;
+                this.square1Pos = this.square2Pos - 1;
+
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7) {
+
+            }
+
+
+        }
+        else if(this.pieceRotationNumber == 3){
+
+            if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 1;
+                this.Rotate();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 1;
+                this.Rotate();
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 1;
+                this.Rotate();
+
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7) {
+
+            }
+
+        }
+        else if(this.pieceRotationNumber == 4){
+
+            if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 2;
+                this.Rotate();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 1;
+                this.Rotate();
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 1;
+                this.Rotate();
+
+            }
+            else if(this.pieceNumber == 5){
+
+                this.pieceRotationNumber = 1;
+                this.Rotate();
+
+            }
+            else if(this.pieceNumber == 6){
+
+                this.pieceRotationNumber = 1;
+                this.Rotate();
+            }
+            else if(this.pieceNumber == 7) {
+
+            }
+
         }
 
         // after all ifs
@@ -379,25 +504,122 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-
-
-            //Rotar
-
-
         }
+        //Vamos por aqui
         else if(this.pieceRotationNumber == 2){
+
+            if(this.pieceNumber == 2){
+
+                int nextPos1,nextPos3,nextPos4;
+                nextPos1 = this.gameMatrix[this.square2Pos - columnCount];
+                nextPos3 = this.gameMatrix[this.square2Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square2Pos + (2* columnCount)];
+
+                if(nextPos1 == 0 && nextPos3 == 0 && nextPos4 ==0 ){
+                    return true;
+                }
+                return false;
+            }
+            else if(this.pieceNumber == 3){
+
+                int nextPos3,nextPos2;
+                nextPos2 = this.gameMatrix[this.square1Pos + 1];
+                nextPos3 = this.gameMatrix[this.square1Pos + columnCount - 1];
+                if(nextPos3 == 0 && nextPos2 == 0){
+                    return true;
+                }
+                return false;
+            }
+
+            else if(this.pieceNumber == 4){
+
+                int nextPos3,nextPos4;
+                nextPos3 = this.gameMatrix[this.square2Pos + columnCount];
+                nextPos4 = this.gameMatrix[this.square2Pos + columnCount + 1];
+                if(nextPos3 == 0 && nextPos4 == 0){
+                    return true;
+                }
+                return false;
+
+            }
+
+            else if(this.pieceNumber == 5){ //falta
+
+            }
+
+            else if(this.pieceNumber == 6){ // falta
+
+            }
+            else if(this.pieceNumber == 7){ // falta
+
+            }
 
         }
         else if(this.pieceRotationNumber == 3){
 
+            if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateRotationMovement();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateRotationMovement();
+            }
+
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateRotationMovement();
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7){
+
+            }
+
         }
         else if(this.pieceRotationNumber == 4){
 
+            if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateRotationMovement();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateRotationMovement();
+
+            }
+
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateRotationMovement();
+
+            }
+
+            else if(this.pieceNumber == 5){
+
+            }
+
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7){
+
+            }
+
         }
-
-
-
-
         return false;
     }
 
@@ -497,7 +719,6 @@ public class MainActivity extends AppCompatActivity {
             }
             else if(this.pieceNumber == 2){
 
-
                 int nextPos4 = this.gameMatrix[this.square4Pos - 1];
                 if(nextPos4 == 0){
                     return true;
@@ -559,12 +780,78 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(this.pieceRotationNumber == 3){
 
+            if(this.pieceNumber == 1){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateLeftMovement();
+
+            }
+            else if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateLeftMovement();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateLeftMovement();
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateLeftMovement();
+
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7){
+
+            }
+
         }
         else if(this.pieceRotationNumber == 4){
 
+            if(this.pieceNumber == 1){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateLeftMovement();
+
+            }
+            else if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateLeftMovement();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateLeftMovement();
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateLeftMovement();
+
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7){
+
+            }
+
         }
-
-
 
         return false;
     }
@@ -722,8 +1009,74 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(this.pieceRotationNumber == 3){
 
+            if(this.pieceNumber == 1){
+                this.pieceRotationNumber = 1;
+                return this.ValidateRightMovement();
+
+            }
+            else if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateRightMovement();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateRightMovement();
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateRightMovement();
+
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7){
+
+            }
+
         }
         else if(this.pieceRotationNumber == 4){
+
+            if(this.pieceNumber == 1){
+                this.pieceRotationNumber = 2;
+                return this.ValidateRightMovement();
+
+            }
+            else if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateRightMovement();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateRightMovement();
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 2;
+                return this.ValidateRightMovement();
+
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7){
+
+            }
 
         }
 
@@ -876,8 +1229,74 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(this.pieceRotationNumber == 3){
 
+            if(this.pieceNumber == 1){
+                this.pieceRotationNumber = 1;
+                return this.ValidateDownMovement();
+
+            }
+            else if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateDownMovement();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateDownMovement();
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 1;
+                return this.ValidateDownMovement();
+
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7){
+
+            }
+
         }
         else if(this.pieceRotationNumber == 4){
+
+            if(this.pieceNumber == 1){
+                this.pieceRotationNumber = 2;
+                this.ValidateDownMovement();
+
+            }
+            else if(this.pieceNumber == 2){
+
+                this.pieceRotationNumber = 2;
+                this.ValidateDownMovement();
+
+            }
+            else if(this.pieceNumber == 3){
+
+                this.pieceRotationNumber = 2;
+                this.ValidateDownMovement();
+
+            }
+            else if(this.pieceNumber == 4){
+
+                this.pieceRotationNumber = 2;
+                this.ValidateDownMovement();
+
+            }
+            else if(this.pieceNumber == 5){
+
+            }
+            else if(this.pieceNumber == 6){
+
+            }
+            else if(this.pieceNumber == 7){
+
+            }
 
         }
 
@@ -988,9 +1407,9 @@ public class MainActivity extends AppCompatActivity {
             imageView = (ImageView) grid.getChildAt(i);
             Log.i("IV", i + imageView.toString());
 
-            //imageView.setImageDrawable(null);
+            imageView.setImageDrawable(null);
             imageView.setBackground(null);
-            //imageView.setImageResource(android.R.color.transparent);
+            imageView.setImageResource(android.R.color.transparent);
 
         }
     }
@@ -1066,6 +1485,99 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    public void ClearRow(int firstIndex,int lastIndex) throws InterruptedException {
+
+        GridLayout grid = findViewById(R.id.gridLayout);
+        ImageView imageView;
+
+        for(int i = firstIndex; i <= lastIndex; i++){
+
+            imageView = (ImageView) grid.getChildAt(i);
+            imageView.setImageResource(android.R.color.transparent);
+            imageView.setImageDrawable(null);
+            this.gameMatrix[i] = 0;
+        }
+
+
+    }
+
+    public void CheckCompleteRow() throws InterruptedException {
+
+        int index = 0;
+        boolean completeRow = true;
+        int value = 0 ;
+        int lastIndex = 0;
+        int firstIndex = 0;
+
+        for(int i = 1; i <= this.rowCount - 2; i++){
+            Log.i("letra" , " Fila : " + Integer.toString(i));
+            for(int j = 1 ;j <= this.columnCount - 2; j++){
+
+                index = (rowCount * i) + j;
+                value = this.gameMatrix[index];
+                lastIndex = j;
+                if(j == 1){
+                    firstIndex = index;
+                }
+                Log.i("letra" , "Columna: " + Integer.toString(j));
+                Log.i("letra" , "Valor en matriz: " + Integer.toString(value));
+                //Log.i("value " , Integer.toString(value));
+                if(value == 0){
+                    completeRow = false;
+                    break;
+                }
+
+            }
+            if(completeRow){
+
+                Toast toast  = Toast.makeText(this,"Fila completa",Toast.LENGTH_LONG);
+                toast.show();
+
+                lastIndex = firstIndex + (columnCount-3);
+                this.ClearRow(firstIndex,lastIndex);
+                //Move down all pieces
+                this.MoveDownAllPieces();
+                this.CheckCompleteRow();
+            }
+            completeRow = true;
+
+        }
+
+    }
+
+    public void MoveDownAllPieces() {
+
+
+        int index = 0;
+        int value = 0;
+
+        for (int i = 1; i <= this.rowCount - 2; i++) {
+
+            for (int j = 1; j <= this.columnCount - 2; j++) {
+
+                index = (rowCount * i) + j;
+                value = this.gameMatrix[index];
+
+                if(value == 1 && this.gameMatrix[index + columnCount] == 0){
+
+                    GridLayout gridLayout = findViewById(R.id.gridLayout);
+                    ImageView imageViewOriginal = (ImageView)gridLayout.getChildAt(index);
+                    ImageView imageViewNueva = (ImageView)gridLayout.getChildAt(index + columnCount);
+                    imageViewNueva.setImageDrawable(imageViewOriginal.getDrawable());
+
+                    imageViewOriginal.setImageResource(android.R.color.transparent);
+                    imageViewOriginal.setImageDrawable(null);
+                    imageViewOriginal.setBackground(null);
+
+                    this.gameMatrix[index] = 0 ;
+                    this.gameMatrix[index + columnCount] = 1;
+
+                }
+            }
+        }
+    }
+
     // Buttons
 
     public void OnClickButtonDown(View view) throws InterruptedException {
@@ -1102,7 +1614,6 @@ public class MainActivity extends AppCompatActivity {
             this.semaphore.release();
         }
     }
-
 
     public void OnClickButtonRotate(View view) throws InterruptedException {
 
