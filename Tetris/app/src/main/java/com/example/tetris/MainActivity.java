@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     int pieceNumber;
     int pieceDrawableId;
     boolean pieceOnGame;
+    boolean gameOver;
     int pieceRotationNumber;
     int gameSpeed;
     Semaphore semaphore;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.gameOver = false;
         this.semaphore = new Semaphore(1);
         GridLayout grid = findViewById(R.id.gridLayout);
         this.rowCount = grid.getRowCount();
@@ -109,9 +111,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    public void GameOver(){
+
+        this.gameOver = true;
+        Toast toast = Toast.makeText(this,"Fin del Juego",Toast.LENGTH_LONG);
+        toast.show();
+
+    }
+
+
     public void SpawnPiece() {
 
         // Gen randon number
+
+        if(this.gameOver){
+            return;
+        }
 
         Random ran = new Random();
         int pieceToGenerate = ran.nextInt(7) + 1;
@@ -126,13 +142,21 @@ public class MainActivity extends AppCompatActivity {
 
         if (pieceNumber == 1) {
 
+            if(! this.PlacePiece(14, 15, 24, 25, pieceToGenerate)){
+
+                this.GameOver();
+                return;
+            }
             this.PlacePieceUi(14, 15, 24, 25, R.drawable.yellowcelltest);
-            this.PlacePiece(14, 15, 24, 25, pieceToGenerate);
+
 
         } else if (pieceNumber == 2) {
 
+            if( !this.PlacePiece(14, 24, 34, 44, pieceToGenerate)){
+                this.GameOver();
+                return;
+            }
             this.PlacePieceUi(14, 24, 34, 44, R.drawable.bluecelltest);
-            this.PlacePiece(14, 24, 34, 44, pieceToGenerate);
 
         } else if (pieceNumber == 3) {
 
@@ -140,25 +164,38 @@ public class MainActivity extends AppCompatActivity {
             this.PlacePiece(14, 15, 23, 24, pieceToGenerate);
 
         } else if (pieceNumber == 4) {
+            if(!this.PlacePiece(13, 14, 24, 25, pieceToGenerate)){
 
+                this.GameOver();
+                return;
+            }
             this.PlacePieceUi(13, 14, 24, 25, R.drawable.greencelltest);
-            this.PlacePiece(13, 14, 24, 25, pieceToGenerate);
 
         } else if (pieceNumber == 5) {
 
+
+            if(!this.PlacePiece(14, 24, 34, 35, pieceToGenerate)){
+                this.GameOver();
+                return;
+            }
             this.PlacePieceUi(14, 24, 34, 35, R.drawable.orangecelltest);
-            this.PlacePiece(14, 24, 34, 35, pieceToGenerate);
 
         } else if (pieceNumber == 6) {
 
+            if(!this.PlacePiece(14, 24, 33, 34, pieceToGenerate)){
+                this.GameOver();
+                return;
+            }
             this.PlacePieceUi(14, 24, 33, 34, R.drawable.pinkcelltest);
-            this.PlacePiece(14, 24, 33, 34, pieceToGenerate);
+
 
         } else if (pieceNumber == 7) {
 
+            if(!this.PlacePiece(13, 14, 15, 24, pieceToGenerate)){
+                this.GameOver();
+                return;
+            }
             this.PlacePieceUi(13, 14, 15, 24, R.drawable.purplecelltest);
-            this.PlacePiece(13, 14, 15, 24, pieceToGenerate);
-
         }
 
 
@@ -1431,20 +1468,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void PlacePiece(int square1Pos, int square2Pos, int square3Pos, int square4Pos, int pieceNumber) {
+    public boolean PlacePiece(int square1Pos, int square2Pos, int square3Pos, int square4Pos, int pieceNumber) {
 
-        this.square1Pos = square1Pos;
-        this.square2Pos = square2Pos;
-        this.square3Pos = square3Pos;
-        this.square4Pos = square4Pos;
+        if (this.gameMatrix[square1Pos] == 0 &&
+                this.gameMatrix[square2Pos] == 0 && this.gameMatrix[square3Pos] == 0 &&
+                this.gameMatrix[square3Pos] == 0 && this.gameMatrix[square4Pos] == 0){
 
-        this.gameMatrix[this.square1Pos] = 1;
-        this.gameMatrix[this.square2Pos] = 1;
-        this.gameMatrix[this.square3Pos] = 1;
-        this.gameMatrix[this.square4Pos] = 1;
 
-        this.pieceNumber = pieceNumber;
-        this.pieceOnGame = true;
+            this.square1Pos = square1Pos;
+            this.square2Pos = square2Pos;
+            this.square3Pos = square3Pos;
+            this.square4Pos = square4Pos;
+
+            this.gameMatrix[this.square1Pos] = 1;
+            this.gameMatrix[this.square2Pos] = 1;
+            this.gameMatrix[this.square3Pos] = 1;
+            this.gameMatrix[this.square4Pos] = 1;
+
+            this.pieceNumber = pieceNumber;
+            this.pieceOnGame = true;
+
+
+            return true;
+
+
+        }
+        return false;
+
+
+
 
     }
 
